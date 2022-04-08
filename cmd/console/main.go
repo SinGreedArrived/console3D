@@ -24,6 +24,7 @@ func main() {
 	pixelAspect := 7.0 / 16.0
 	gradient := []rune(" .:!/|(41lZH9W8$@")
 	screen := make([]rune, width*height)
+	oldScreen := make([]rune, width*height)
 	for t := 0.0; t < 12600.0; t++ {
 		light := vector.NewVec3(-0.5, 0.5, -1.0)
 		spherePos := vector.NewVec3(0, 3, 0)
@@ -75,6 +76,11 @@ func main() {
 				screen[i+j*width] = pixel
 			}
 		}
-		fmt.Print(string(screen))
+		Render(oldScreen, screen)
+		oldScreen = nil
 	}
+}
+
+func Render(oldScreen, screen []rune) {
+	fmt.Printf("\x1B[H%s", string(screen))
 }
