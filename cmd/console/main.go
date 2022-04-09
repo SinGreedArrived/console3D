@@ -34,7 +34,7 @@ func main() {
 				uv := vector.NewVec2(float64(i), float64(j)).Div(vector.NewVec2(float64(width), float64(height))).Mult(2.0).Diff(1.0)
 				uv.X *= aspect * pixelAspect
 				ro := vector.NewVec3(-6, 0, 0)
-				rd := vector.NewVec3(2, uv).Norm()
+				rd := vector.NewVec3(2, uv.X, uv.Y).Norm()
 				ro = vector.RotateY(ro, 0.25)
 				rd = vector.RotateY(rd, 0.25)
 				ro = vector.RotateZ(ro, t*0.01)
@@ -51,7 +51,7 @@ func main() {
 						n = itPoint.Norm()
 					}
 					boxN := vector.NewVec3(0)
-					intersection = vector.Box(ro.Diff(boxPos), rd, vector.NewVec3(1.0), &boxN)
+					intersection = vector.Box(ro.Diff(boxPos), rd, vector.NewVec3(1.0), boxN)
 					if intersection.X > 0 && intersection.X < minIt {
 						minIt = intersection.X
 						n = boxN
