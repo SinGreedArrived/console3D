@@ -5,30 +5,30 @@ import (
 )
 
 func RotateX(a *Vec3, angle float64) *Vec3 {
-	b := a
+	b := *a
 	//b.z = a.z * cos(angle) - a.y * sin(angle);
 	b.Z = a.Z*math.Cos(angle) - a.Y*math.Sin(angle)
 	//b.y = a.z * sin(angle) + a.y * cos(angle);
 	b.Y = a.Z*math.Sin(angle) + a.Y*math.Cos(angle)
-	return b
+	return &b
 }
 
 func RotateY(a *Vec3, angle float64) *Vec3 {
-	b := a
+	b := *a
 	//b.x = a.x * cos(angle) - a.z * sin(angle);
 	b.X = a.X*math.Cos(angle) - a.Z*math.Sin(angle)
 	//b.z = a.x * sin(angle) + a.z * cos(angle);
 	b.Z = a.X*math.Sin(angle) + a.Z*math.Cos(angle)
-	return b
+	return &b
 }
 
 func RotateZ(a *Vec3, angle float64) *Vec3 {
-	b := a
+	b := *a
 	//b.x = a.x * cos(angle) - a.y * sin(angle);
 	b.X = a.X*math.Cos(angle) - a.Y*math.Sin(angle)
 	//b.y = a.x * sin(angle) + a.y * cos(angle);
 	b.Y = a.X*math.Sin(angle) + a.Y*math.Cos(angle)
-	return b
+	return &b
 }
 
 //double sign(double a) { return (0 < a) - (a < 0); }
@@ -155,7 +155,10 @@ func Box(ro, rd, boxSize *Vec3, outNormal *Vec3) *Vec2 {
 	}
 	yzx := NewVec3(t1.Y, t1.Z, t1.X)
 	zxy := NewVec3(t1.Z, t1.X, t1.Y)
-	outNormal = Sign3(rd).Mult(Step3(yzx, t1)).Mult(Step3(zxy, t1)).Minus()
+	tmp := Sign3(rd).Mult(Step3(yzx, t1)).Mult(Step3(zxy, t1)).Minus()
+	outNormal.X = tmp.X
+	outNormal.Y = tmp.Y
+	outNormal.Z = tmp.Z
 	return NewVec2(tN, tF)
 }
 

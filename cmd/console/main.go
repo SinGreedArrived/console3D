@@ -35,10 +35,10 @@ func main() {
 				uv.X *= aspect * pixelAspect
 				ro := vector.NewVec3(-6, 0, 0)
 				rd := vector.NewVec3(2, uv.X, uv.Y).Norm()
-				ro = vector.RotateY(ro, 0.25)
-				rd = vector.RotateY(rd, 0.25)
-				ro = vector.RotateZ(ro, t*0.01)
-				rd = vector.RotateZ(rd, t*0.01)
+				ro.RotateY(0.25)
+				rd.RotateY(0.25)
+				ro.RotateZ(t * 0.01)
+				rd.RotateZ(t * 0.01)
 				diff := 1.0
 				for k := 0; k < 5; k++ {
 					minIt := 99999.0
@@ -54,7 +54,7 @@ func main() {
 					intersection = vector.Box(ro.Diff(boxPos), rd, vector.NewVec3(1.0), boxN)
 					if intersection.X > 0 && intersection.X < minIt {
 						minIt = intersection.X
-						n = boxN
+						n = boxN.Norm()
 					}
 					intersection = vector.NewVec2(vector.Plane(ro, rd, vector.NewVec3(0, 0, -1), 1))
 					if intersection.X > 0 && intersection.X < minIt {

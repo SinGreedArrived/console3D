@@ -204,3 +204,27 @@ func (v *Vec3) Dot(i interface{}) float64 {
 	}
 	return 0.0
 }
+
+func (v *Vec3) RotateX(angle float64) {
+	tmpV := *v
+	//b.z = a.z * cos(angle) - a.y * sin(angle);
+	v.Z = tmpV.Z*Cos(angle) - tmpV.Y*Sin(angle)
+	//b.y = a.z * sin(angle) + a.y * cos(angle);
+	v.Y = tmpV.Z*Sin(angle) + tmpV.Y*Cos(angle)
+}
+
+func (v *Vec3) RotateY(angle float64) {
+	tmpV := *v
+	//b.x = a.x * cos(angle) - a.z * sin(angle);
+	v.X = tmpV.X*Cos(angle) - tmpV.Z*Sin(angle)
+	//b.z = a.x * sin(angle) + a.z * cos(angle);
+	v.Z = tmpV.X*Sin(angle) + tmpV.Z*Cos(angle)
+}
+
+func (v *Vec3) RotateZ(angle float64) {
+	tmpV := *v
+	//b.x = a.x * cos(angle) - a.y * sin(angle);
+	v.X = tmpV.X*Cos(angle) - tmpV.Y*Sin(angle)
+	//b.y = a.x * sin(angle) + a.y * cos(angle);
+	v.Y = tmpV.X*Sin(angle) + tmpV.Y*Cos(angle)
+}
