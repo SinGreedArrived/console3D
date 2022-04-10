@@ -10,6 +10,6 @@ type Camera struct {
 func NewCamera(pos, direct *vector.Vec3) *Camera {
 	return &Camera{
 		Position:  pos,
-		Direction: direct,
+		Direction: direct.Norm(),
 	}
 }

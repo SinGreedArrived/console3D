@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func getWidth() (int, error) {
+func getWidth() (uint64, error) {
 	cmd := exec.Command("tput", "cols")
 	var out bytes.Buffer
 	cmd.Stdin = os.Stdin
@@ -17,10 +17,10 @@ func getWidth() (int, error) {
 	if err := cmd.Run(); err != nil {
 		return 0, err
 	}
-	return strconv.Atoi(strings.TrimSpace(out.String()))
+	return strconv.ParseUint(strings.TrimSpace(out.String()), 10, 64)
 }
 
-func getHeight() (int, error) {
+func getHeight() (uint64, error) {
 	cmd := exec.Command("tput", "lines")
 	var out bytes.Buffer
 	cmd.Stdin = os.Stdin
@@ -28,10 +28,10 @@ func getHeight() (int, error) {
 	if err := cmd.Run(); err != nil {
 		return 0, err
 	}
-	return strconv.Atoi(strings.TrimSpace(out.String()))
+	return strconv.ParseUint(strings.TrimSpace(out.String()), 10, 64)
 }
 
-func GetResolution() (int, int, error) {
+func GetResolution() (uint64, uint64, error) {
 	width, err := getWidth()
 	if err != nil {
 		return 0, 0, fmt.Errorf("getWidth: %w", err)

@@ -14,6 +14,7 @@ type Vec3 struct {
 func NewVec3(i ...interface{}) *Vec3 {
 	return newVec3(i)
 }
+
 func newVec3(i []interface{}) *Vec3 {
 	v := &Vec3{}
 	if len(i) == 1 {
@@ -145,24 +146,21 @@ func (v *Vec3) Div(i interface{}) *Vec3 {
 	return nil
 }
 
+//vec3 step(vec3 const& edge, vec3 v) { return &Vec3(step(edge.x, v.x), step(edge.y, v.y), step(edge.z, v.z)); }
 func (v *Vec3) Step(i interface{}) *Vec3 {
 	switch i.(type) {
 	case *Vec3:
-		vector3 := i.(*Vec3)
 		return &Vec3{
-			X: Step(vector3.X, v.X),
-			Y: Step(vector3.Y, v.Y),
-			Z: Step(vector3.Z, v.Z),
-		}
-	case float64:
-		f := i.(float64)
-		return &Vec3{
-			X: Step(f, v.X),
-			Y: Step(f, v.Y),
-			Z: Step(f, v.Z),
+			X: Step(i.(*Vec3).X, v.X),
+			Y: Step(i.(*Vec3).Y, v.Y),
+			Z: Step(i.(*Vec3).Z, v.Z),
 		}
 	}
-	return nil
+	return &Vec3{
+		X: Step(i.(float64), v.X),
+		Y: Step(i.(float64), v.Y),
+		Z: Step(i.(float64), v.Z),
+	}
 }
 
 func (v *Vec3) Abs() *Vec3 {
@@ -173,6 +171,7 @@ func (v *Vec3) Abs() *Vec3 {
 	}
 }
 
+//vec3 sign(vec3 const& v) { return &Vec3(sign(v.x), sign(v.y), sign(v.z)); }
 func (v *Vec3) Sign() *Vec3 {
 	return &Vec3{
 		X: Sign(v.X),
@@ -181,6 +180,7 @@ func (v *Vec3) Sign() *Vec3 {
 	}
 }
 
+//vec3 reflect(vec3 rd, vec3 n) { return rd - n * (2 * dot(n, rd)); }
 func (v *Vec3) Reflect(n *Vec3) *Vec3 {
 	return v.Diff(n.Mult(n.Dot(v) * 2))
 }
@@ -193,6 +193,7 @@ func (v *Vec3) Norm() *Vec3 {
 	return v.Div(v.Len())
 }
 
+//float dot(vec3 const& a, vec3 const& b) { return a.x * b.x + a.y * b.y + a.z * b.z; }
 func (v *Vec3) Dot(i interface{}) float64 {
 	switch i.(type) {
 	case *Vec3:
