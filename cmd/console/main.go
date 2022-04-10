@@ -1,6 +1,7 @@
 package main
 
 import (
+	"3d/internal/objects"
 	"3d/internal/terminal"
 	"3d/internal/vector"
 	"fmt"
@@ -27,7 +28,7 @@ func main() {
 	oldScreen := make([]rune, width*height)
 	for t := 0.0; t < 12600.0; t++ {
 		light := vector.NewVec3(-0.5, 0.5, -1.0)
-		spherePos := vector.NewVec3(0, 3, 0)
+		sphere := objects.NewSphere(vector.NewVec3(0, 3, 0))
 		boxPos := vector.NewVec3(0, 0, -0.1)
 		for i := 0; i < width; i++ {
 			for j := 0; j < height; j++ {
@@ -35,28 +36,29 @@ func main() {
 				uv.X *= aspect * pixelAspect
 				ro := vector.NewVec3(-6, 0, 0)
 				rd := vector.NewVec3(2, uv.X, uv.Y).Norm()
-				ro.RotateY(0.25)
-				rd.RotateY(0.25)
-				ro.RotateZ(t * 0.01)
-				rd.RotateZ(t * 0.01)
+				camera := objects.NewCamera(ro, rd)
+				camera.Position.RotateY(0.25)
+				camera.Direction.RotateY(0.25)
+				camera.Position.RotateZ(t * 0.01)
+				camera.Direction.RotateZ(t * 0.01)
 				diff := 1.0
 				for k := 0; k < 5; k++ {
 					minIt := 99999.0
 					albedo := 1.0
-					intersection := vector.Sphere(ro.Diff(spherePos), rd, 1)
+					intersection := vector.Sphere(camera.Position.Diff(sphere), camera.Direction, 1)
 					n := vector.NewVec3(0)
 					if intersection.X > 0 {
-						itPoint := rd.Mult(intersection.X).Sum(ro.Diff(spherePos))
+						itPoint := camera.Direction.Mult(intersection.X).Sum(camera.Position.Diff(sphere))
 						minIt = intersection.X
 						n = itPoint.Norm()
 					}
 					boxN := vector.NewVec3(0)
-					intersection = vector.Box(ro.Diff(boxPos), rd, vector.NewVec3(1.0), boxN)
+					intersection = vector.Box(camera.Position.Diff(boxPos), camera.Direction, vector.NewVec3(1.0), boxN)
 					if intersection.X > 0 && intersection.X < minIt {
 						minIt = intersection.X
 						n = boxN.Norm()
 					}
-					intersection = vector.NewVec2(vector.Plane(ro, rd, vector.NewVec3(0, 0, -1), 1))
+					intersection = vector.NewVec2(vector.Plane(camera.Position, camera.Direction, vector.NewVec3(0, 0, -1), 1))
 					if intersection.X > 0 && intersection.X < minIt {
 						minIt = intersection.X
 						n = vector.NewVec3(0, 0, -1)
@@ -64,8 +66,8 @@ func main() {
 					}
 					if minIt < 99999 {
 						diff *= (vector.Dot3(n, light)*0.5 + 0.5) * albedo
-						ro = ro.Sum(rd.Mult(minIt - 0.01))
-						rd = vector.Reflect3(rd, n)
+						camera.Position = camera.Position.Sum(camera.Direction.Mult(minIt - 0.01))
+						camera.Direction = vector.Reflect3(camera.Direction, n)
 					} else {
 						break
 					}
