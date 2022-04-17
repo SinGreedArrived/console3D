@@ -3,6 +3,9 @@ package main
 import (
 	"3d/internal/objects"
 	"3d/internal/vector"
+	"fmt"
+	"os"
+	"time"
 )
 
 var (
@@ -30,6 +33,7 @@ func main() {
 	}
 
 	for t := 0.0; t < 12600.0; t++ {
+		startTime := time.Now()
 		for i := uint64(0); i < screen.Width; i++ {
 			for j := uint64(0); j < screen.Height; j++ {
 				uv := vector.NewVec2(float64(i), float64(j)).Div(vector.NewVec2(float64(screen.Width), float64(screen.Height))).Mult(2.0).Diff(1.0)
@@ -75,6 +79,7 @@ func main() {
 				screen.Screen[i+j*screen.Width] = pixel
 			}
 		}
+		fmt.Fprintf(os.Stderr, "%s\n", time.Until(startTime))
 		screen.Render()
 	}
 }
