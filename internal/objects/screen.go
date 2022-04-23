@@ -7,7 +7,7 @@ import (
 	"3d/internal/vector"
 )
 
-type Screen struct {
+type consoleScreen struct {
 	Width, Height uint64
 	Aspect        float64
 	Gradient      []rune
@@ -15,13 +15,13 @@ type Screen struct {
 	Coord         *vector.Vec2
 }
 
-func NewScreen(pixelAspect float64, gradient string) (IScreen, error) {
+func NewScreen(pixelAspect float64, gradient string) (Screen, error) {
 	width, height, err := terminal.GetResolution()
 	if err != nil {
 		fmt.Println(fmt.Errorf("GetResolution: %w", err))
 		return nil, fmt.Errorf("terminal.GetResolution: %w", err)
 	}
-	return &Screen{
+	return &consoleScreen{
 		Width:    width,
 		Height:   height,
 		Aspect:   float64(width) / float64(height) * pixelAspect,
@@ -31,15 +31,15 @@ func NewScreen(pixelAspect float64, gradient string) (IScreen, error) {
 	}, nil
 }
 
-func (s *Screen) Render() {
+func (s *consoleScreen) Render() {
 	fmt.Printf("\x1B[H%s", string(s.Screen))
 }
 
-func (s *Screen) SetGradient(gradient string) {
+func (s *consoleScreen) SetGradient(gradient string) {
 	s.Gradient = []rune(gradient)
 }
 
-func (s *Screen) NextCoord() bool {
+func (s *consoleScreen) NextCoord() bool {
 	s.Coord.Y += 1.
 	if s.Coord.X == float64(s.Height)-1. && s.Coord.Y == float64(s.Width)-1. {
 		s.Coord.X = 0
@@ -54,13 +54,13 @@ func (s *Screen) NextCoord() bool {
 	return true
 }
 
-func (s *Screen) UV() *vector.Vec2 {
+func (s *consoleScreen) UV() *vector.Vec2 {
 	uv := vector.NewVec2(s.Coord.Y, s.Coord.X).Div(vector.NewVec2(float64(s.Width), float64(s.Height))).Mult(2.0).Diff(1.0)
 	uv.X *= s.Aspect
 	return uv
 }
 
-func (s *Screen) SetPixel(diff float64) {
+func (s *consoleScreen) SetPixel(diff float64) {
 	color := int(diff * float64(len(s.Gradient)))
 	color = vector.Clamp(color, 0, len(s.Gradient)-1)
 	pixel := s.Gradient[color]
