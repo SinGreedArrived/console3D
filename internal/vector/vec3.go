@@ -53,6 +53,9 @@ func newVec3(i []interface{}) *Vec3 {
 			case 2:
 				v.Z = i[n].(float64)
 			}
+		case *Vec2:
+			v.Y = i[n].(*Vec2).X
+			v.Z = i[n].(*Vec2).Y
 		}
 	}
 	return v
