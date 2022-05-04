@@ -37,47 +37,48 @@ func main() {
 		panic(err)
 	}
 
-	t := 420.
-	for screen.NextCoord() {
-		camera := objects.NewCamera(
-			vector.NewVec3(-6, 0, 0),
-			vector.NewVec3(2, screen.UV()),
-		)
-		camera.Position.RotateY(0.25)
-		camera.Direction.RotateY(0.25)
-		camera.Position.RotateZ(t * 0.01)
-		camera.Direction.RotateZ(t * 0.01)
-		diff := 1.0
-		for k := 0; k < 5; k++ {
-			minIt := 99999.0
-			albedo := 1.0
-			intersection := sphere.Intersection(camera)
-			n := vector.NewVec3(0)
-			if intersection.X > 0 {
-				itPoint := camera.Direction.Mult(intersection.X).Sum(camera.Position.Diff(sphere.Position))
-				minIt = intersection.X
-				n = itPoint.Norm()
+	for t := 0.; t < 12600.; t++ {
+		for screen.NextCoord() {
+			camera := objects.NewCamera(
+				vector.NewVec3(-6, 0, 0),
+				vector.NewVec3(2, screen.UV()),
+			)
+			camera.Position.RotateY(0.25)
+			camera.Direction.RotateY(0.25)
+			camera.Position.RotateZ(t * 0.01)
+			camera.Direction.RotateZ(t * 0.01)
+			diff := 1.0
+			for k := 0; k < 5; k++ {
+				minIt := 99999.0
+				albedo := 1.0
+				intersection := sphere.Intersection(camera)
+				n := vector.NewVec3(0)
+				if intersection.X > 0 {
+					itPoint := camera.Direction.Mult(intersection.X).Sum(camera.Position.Diff(sphere.Position))
+					minIt = intersection.X
+					n = itPoint.Norm()
+				}
+				intersection, boxNorm := box.Intersection(camera)
+				if intersection.X > 0 && intersection.X < minIt {
+					minIt = intersection.X
+					n = boxNorm
+				}
+				intersection = plane.Intersection(camera)
+				if intersection.X > 0 && intersection.X < minIt {
+					minIt = intersection.X
+					n = vector.NewVec3(0, 0, -1)
+					albedo = 0.5
+				}
+				if minIt < 99999 {
+					diff *= (n.Dot(light)*0.5 + 0.5) * albedo
+					camera.Position = camera.Position.Sum(camera.Direction.Mult(minIt - 0.01))
+					camera.Direction = camera.Direction.Reflect(n)
+				} else {
+					break
+				}
 			}
-			intersection, boxNorm := box.Intersection(camera)
-			if intersection.X > 0 && intersection.X < minIt {
-				minIt = intersection.X
-				n = boxNorm
-			}
-			intersection = plane.Intersection(camera)
-			if intersection.X > 0 && intersection.X < minIt {
-				minIt = intersection.X
-				n = vector.NewVec3(0, 0, -1)
-				albedo = 0.5
-			}
-			if minIt < 99999 {
-				diff *= (n.Dot(light)*0.5 + 0.5) * albedo
-				camera.Position = camera.Position.Sum(camera.Direction.Mult(minIt - 0.01))
-				camera.Direction = camera.Direction.Reflect(n)
-			} else {
-				break
-			}
+			screen.SetPixel(diff)
 		}
-		screen.SetPixel(diff)
+		screen.Render()
 	}
-	screen.Render()
 }
