@@ -7,7 +7,7 @@ import (
 	"3d/internal/vector"
 )
 
-type consoleScreen struct {
+type Frame struct {
 	Width, Height uint64
 	Aspect        float64
 	Gradient      []rune
@@ -15,13 +15,13 @@ type consoleScreen struct {
 	Coord         *vector.Vec2
 }
 
-func NewScreen(pixelAspect float64, gradient string) (Screen, error) {
+func NewFrame(pixelAspect float64, gradient string) (*Frame, error) {
 	width, height, err := terminal.GetResolution()
 	if err != nil {
 		fmt.Println(fmt.Errorf("GetResolution: %w", err))
 		return nil, fmt.Errorf("terminal.GetResolution: %w", err)
 	}
-	return &consoleScreen{
+	return &Frame{
 		Width:    width,
 		Height:   height,
 		Aspect:   float64(width) / float64(height) * pixelAspect,
@@ -31,15 +31,19 @@ func NewScreen(pixelAspect float64, gradient string) (Screen, error) {
 	}, nil
 }
 
-func (s *consoleScreen) Render() {
+func (s *Frame) GetSize() (uint64, uint64) {
+	return s.Width, s.Height
+}
+
+func (s *Frame) Render() {
 	fmt.Printf("\x1B[H%s", string(s.Screen))
 }
 
-func (s *consoleScreen) SetGradient(gradient string) {
+func (s *Frame) SetGradient(gradient string) {
 	s.Gradient = []rune(gradient)
 }
 
-func (s *consoleScreen) NextCoord() bool {
+func (s *Frame) NextCoord() bool {
 	s.Coord.Y += 1.
 	if s.Coord.X == float64(s.Height)-1. && s.Coord.Y == float64(s.Width)-1. {
 		s.Coord.X = 0
@@ -54,15 +58,28 @@ func (s *consoleScreen) NextCoord() bool {
 	return true
 }
 
-func (s *consoleScreen) UV() *vector.Vec2 {
-	uv := vector.NewVec2(s.Coord.Y, s.Coord.X).Div(vector.NewVec2(float64(s.Width), float64(s.Height))).Mult(2.0).Diff(1.0)
+func (s *Frame) UV(coord *vector.Vec2) *vector.Vec2 {
+	if coord == nil {
+		uv := vector.NewVec2(s.Coord.Y, s.Coord.X).Div(vector.NewVec2(float64(s.Width), float64(s.Height))).Mult(2.0).Diff(1.0)
+		uv.X *= s.Aspect
+		return uv
+	}
+	uv := vector.NewVec2(coord.Y, coord.X).Div(vector.NewVec2(float64(s.Width), float64(s.Height))).Mult(2.0).Diff(1.0)
 	uv.X *= s.Aspect
 	return uv
 }
 
-func (s *consoleScreen) SetPixel(diff float64) {
+func (s *Frame) GetCoord() *vector.Vec2 {
+	return s.Coord
+}
+
+func (s *Frame) SetPixel(diff float64, coord *vector.Vec2) {
 	color := int(diff * float64(len(s.Gradient)))
 	color = vector.Clamp(color, 0, len(s.Gradient)-1)
 	pixel := s.Gradient[color]
-	s.Screen[uint64(s.Coord.Y)+uint64(s.Coord.X)*s.Width] = pixel
+	if coord == nil {
+		s.Screen[uint64(s.Coord.Y)+uint64(s.Coord.X)*s.Width] = pixel
+		return
+	}
+	s.Screen[uint64(coord.Y)+uint64(coord.X)*s.Width] = pixel
 }

@@ -10,6 +10,7 @@ type Vec2 struct {
 func NewVec2(i ...interface{}) *Vec2 {
 	return newVec2(i)
 }
+
 func newVec2(i []interface{}) *Vec2 {
 	v := &Vec2{}
 	if len(i) == 1 {
@@ -39,6 +40,13 @@ func newVec2(i []interface{}) *Vec2 {
 				v.X = float64(i[n].(int))
 			case 1:
 				v.Y = float64(i[n].(int))
+			}
+		case uint64:
+			switch n {
+			case 0:
+				v.X = float64(i[n].(uint64))
+			case 1:
+				v.Y = float64(i[n].(uint64))
 			}
 		case float64:
 			switch n {

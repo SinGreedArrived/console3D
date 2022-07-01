@@ -31,6 +31,10 @@ func NewScreenImg(pixelAspect float64, gradient string) (Screen, error) {
 	}, nil
 }
 
+func (s *PicScreen) GetSize() (uint64, uint64) {
+	return 0, 0
+}
+
 func (s *PicScreen) Render() {
 	fmt.Printf("\x1B[H%s", string(s.Screen))
 }
@@ -54,15 +58,16 @@ func (s *PicScreen) NextCoord() bool {
 	return true
 }
 
-func (s *PicScreen) UV() *vector.Vec2 {
+func (s *PicScreen) UV(coord *vector.Vec2) *vector.Vec2 {
 	uv := vector.NewVec2(s.Coord.Y, s.Coord.X).Div(vector.NewVec2(float64(s.Width), float64(s.Height))).Mult(2.0).Diff(1.0)
 	uv.X *= s.Aspect
 	return uv
 }
 
-func (s *PicScreen) SetPixel(diff float64) {
-	color := int(diff * float64(len(s.Gradient)))
-	color = vector.Clamp(color, 0, len(s.Gradient)-1)
-	pixel := s.Gradient[color]
-	s.Screen[uint64(s.Coord.Y)+uint64(s.Coord.X)*s.Width] = pixel
+func (s *PicScreen) SetPixel(diff float64, coord *vector.Vec2) {
+	panic("not impl")
+}
+
+func (s *PicScreen) GetCoord() *vector.Vec2 {
+	return s.Coord
 }
